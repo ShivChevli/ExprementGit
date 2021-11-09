@@ -7,7 +7,6 @@ This repo will also use for some new trial and error.
 # Discription about Programs
 
 ## pattern1.c 
-<hr>
 <pre>
     *****
     ****
@@ -17,7 +16,6 @@ This repo will also use for some new trial and error.
 </pre>
 
 ## pattern2.c
-<hr>
 <pre>
          #
        # #
@@ -26,7 +24,6 @@ This repo will also use for some new trial and error.
 </pre>
 
 ## pattern3.c
-<hr>
 <pre>
 "    
                #
@@ -48,7 +45,6 @@ This repo will also use for some new trial and error.
 </pre>
 
 ## pattern4.c
-<hr>
 <pre>
   #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #
   #  #  #  #  #  #  #        #  #  #  #  #  #  #
@@ -69,5 +65,4 @@ This repo will also use for some new trial and error.
 </pre>
 
 ## UserManagement.c 
-<hr>
-One simple program which use CSV file as database and Maneplate data using file heading in C Programing language.
+it is a simple program that uses CSV files as database and Nameplate data using file heading in C Programing language.
