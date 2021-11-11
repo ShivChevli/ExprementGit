@@ -21,19 +21,6 @@ typedef struct USERHEAD
     struct USER *next;
 } UserHeadNode;
 
-void addN(char str[])
-{
-    int i;
-    for (i = 0; i < 20 - 1; i++)
-    {
-        if (str[i] == '\0')
-        {
-            str[i + 1] = str[i];
-            str[i] = '\n';
-            break;
-        }
-    }
-};
 void PrintHeading(char str[])
 {
     printf("\n===========================================================\n");
@@ -61,12 +48,12 @@ void DiaplayUser(UserHeadNode *head)
     printf("------------------------------------------------------------------------------\n");
     while (pt != NULL)
     {
-        printf("| %d\t\t| %d\t\t| %d\t\t| %s\t\t| %s", pt->id, pt->type, pt->status, pt->userName, pt->password);
+        printf("| %d\t\t| %d\t\t| %d\t\t| %s\t\t| %s\n", pt->id, pt->type, pt->status, pt->userName, pt->password);
         pt = pt->next;
     }
     printf("\nTotal User :- %d", head->NumberOfUser);
     printf("\nAdmin User :- %d", head->AdminUser);
-    printf("\nNormal User :- %d", head->NormalUser);
+    printf("\nNormal User :- %d\n", head->NormalUser);
 };
 
 User *UserValidation(User *u1)
@@ -97,7 +84,6 @@ User *UserValidation(User *u1)
                 {
                     printf("Enter Password :- ");
                     scanf("%s", pwd);
-                    addN(pwd);
                     if (strcmp(u1->password, pwd) == 0)
                     {
                         ans = u1;
@@ -138,7 +124,6 @@ User *createUser(User *pt)
     scanf("%s", p2);
     if (strcmp(p1, p2) == 0)
     {
-        addN(p1);
         temp = (User *)malloc(sizeof(User));
         strcpy(temp->userName, tempUser);
         strcpy(temp->password, p1);
@@ -160,7 +145,8 @@ UserHeadNode *getUserFromFile(char file[])
     // File Headaling Pointers
     int column = 0, row = 0;
     char buffer[1024];
-    FILE *fp = fopen(file, "ra");
+    char pre[] = "./Database/";
+    FILE *fp = fopen(strcat(pre, file), "ra");
 
     UserHeadNode *head = (UserHeadNode *)malloc(sizeof(UserHeadNode));
     User *HeadPointer = (User *)malloc(sizeof(User));
@@ -194,6 +180,7 @@ UserHeadNode *getUserFromFile(char file[])
         column = 0;
         while (value)
         {
+            value[strcspn(value, "\n")] = '\0';
             // Column 1
             if (column == 0)
             {
@@ -252,7 +239,9 @@ void writeUserTofile(char *file, UserHeadNode *node)
 {
     int column = 0, row = 0;
     char buffer[1024];
-    FILE *fp = fopen(file, "w");
+
+    char pre[] = "./Database/";
+    FILE *fp = fopen(strcat(pre, file), "w");
 
     fprintf(fp, "UserId,UserType,UserStatus,UserName,UserPassword\n");
 
