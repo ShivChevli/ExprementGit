@@ -3,6 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+/*
+    Custom Data Structure
+    TO store Menue Item
+*/
 typedef struct MENUE
 {
     int id;
@@ -12,7 +16,10 @@ typedef struct MENUE
     struct MENUE *next;
 } MenuItem;
 
-// New Item
+/*
+    Custom Data Structure
+    TO store Menue Cetegory and It's Items
+*/
 typedef struct MENUEHEADER
 {
     int categoryNumber;
@@ -20,16 +27,25 @@ typedef struct MENUEHEADER
     char category[40];
     struct MENUE *items;
     struct MENUEHEADER *next;
-} MenueHeader;
-// End New Item
+} MenueCategory;
 
-// typedef struct HeadTraker
-// {
-//     int maxId;
-//     int NumberofCetogory;
-//     MenueHeader *head;
-// } ;
+/*
+    Custom Data Structure
+    TO stor Mata Data of Menue
+    Use for Internal Tracking
+*/
+typedef struct CONTAINER
+{
+    int MaxId;
+    int NumberofCetogory;
+    MenueCategory *Start;
+} Storage;
 
+/*
+    This is Utility Function Use for Print Heading and Look output formating Better
+    Dependancies :- None
+    DataStructure Used :- None
+*/
 void PrintHeading(char str[])
 {
     printf("\n======================================================================================\n");
@@ -37,6 +53,11 @@ void PrintHeading(char str[])
     printf("\n=======================================================================================\n");
 };
 
+/*
+    This is Utility Function Use for Display Error Messages.
+    Dependancies :- None
+    DataStructure Used :- None
+*/
 void PrintError(char str[])
 {
     printf("\n########################################################################################\n");
@@ -46,11 +67,21 @@ void PrintError(char str[])
     printf("\n----------------------------------------------------------------------------------------\n");
 }
 
+/*
+    This is Utility Function Use for Formating Output
+    Dependancies :- None
+    DataStructure Used :- None
+*/
 void LogMark()
 {
     printf("\n----------------------------------------------------------------------------------------\n");
 };
 
+/*
+    This is Utility Function User for Add Extra Space in String To look Formating Batter
+    Dependancies :- None
+    DataStructure Used :- None
+*/
 void setLength(char *str, int len)
 {
     int j = 0;
@@ -66,10 +97,33 @@ void setLength(char *str, int len)
     str[j] = '\0';
 }
 
-void setItemNode(MenueHeader *HeadTraker, MenuItem *HeadPointer)
+/*
+    This is Utility Function User for Remove Extra Space in String To look Formating Batter
+    Dependancies :- None
+    DataStructure Used :- None
+*/
+void removeLength(char str[])
+{
+    int i = 0;
+    for (i = 0; i < 20; i++)
+    {
+        if (str[i] == ' ' && str[i + 1] == ' ')
+        {
+            str[i] = '\0';
+            break;
+        }
+    }
+}
+
+/*
+    this Function Place Menue Item Node into Proper place in Link list
+    Dependancies :- setItemNode Function,setLength Function
+    DataStructure Used :- MenueCategory, MenuItem
+*/
+void setItemNode(MenueCategory *HeadTraker, MenuItem *HeadPointer)
 {
 
-    MenuItem *trakItem;
+    MenuItem *trakItem = NULL;
     /*
     Put nodes in Category Link list
     */
@@ -94,7 +148,12 @@ void setItemNode(MenueHeader *HeadTraker, MenuItem *HeadPointer)
     }
 }
 
-MenueHeader *getMenueHeadersFromFile(char file[])
+/*
+    Read Menue Cetegory from File
+    Dependancies :- setLength Function
+    DataStructure Used :- MenueCategory, Storage
+*/
+Storage *getMenueCategorysFromFile(char file[])
 {
 
     // File Headaling Pointers
@@ -103,8 +162,9 @@ MenueHeader *getMenueHeadersFromFile(char file[])
     char pre[] = "./Database/";
     FILE *fp = fopen(strcat(pre, file), "ra");
 
-    MenueHeader *head = NULL;
-    MenueHeader *menueCategory = (MenueHeader *)malloc(sizeof(MenueHeader));
+    Storage *head = (Storage *)malloc(sizeof(Storage));
+    head->Start = NULL;
+    MenueCategory *menueCategory = (MenueCategory *)malloc(sizeof(MenueCategory));
 
     while (fgets(buffer, 1024, fp))
     {
@@ -116,13 +176,13 @@ MenueHeader *getMenueHeadersFromFile(char file[])
 
         char *value = strtok(buffer, ", ");
 
-        if (head == NULL)
+        if (head->Start == NULL)
         {
-            head = menueCategory;
+            head->Start = menueCategory;
         }
         else
         {
-            menueCategory->next = (MenueHeader *)malloc(sizeof(MenueHeader));
+            menueCategory->next = (MenueCategory *)malloc(sizeof(MenueCategory));
             menueCategory = menueCategory->next;
         }
         menueCategory->next = NULL;
@@ -153,11 +213,18 @@ MenueHeader *getMenueHeadersFromFile(char file[])
         // printf("\n");
     }
     fclose(fp);
+    head->NumberofCetogory = row;
+    head->MaxId = -1;
 
     return head;
 };
 
-void *getMenueItemFromFile(char file[], MenueHeader *head)
+/*
+    Read Menue Items From Files
+    Dependancies :- setItemNode Function,setLength Function
+    DataStructure Used :- MenueCategory, MenueItem
+ */
+void *getMenueItemFromFile(char file[], Storage *head)
 {
 
     // File Headaling Pointers
@@ -167,21 +234,21 @@ void *getMenueItemFromFile(char file[], MenueHeader *head)
     char pre[] = "./Database/";
     FILE *fp = fopen(strcat(pre, file), "ra");
 
-    if (fp == NULL)
-    {
-        printf("FIle NOt Open\n");
-    }
-    else
-    {
-        PrintError("FIle Exiest");
-    }
-    MenueHeader *HeadTraker = NULL;
+    // if (fp == NULL)
+    // {
+    //     printf("FIle NOt Open\n");
+    // }
+    // else
+    // {
+    //     PrintError("FIle Exiest");
+    // }
+    MenueCategory *HeadTraker = NULL;
     MenuItem *HeadPointer = NULL;
     MenuItem *trakItem = NULL;
 
     while (fgets(buffer, 1024, fp))
     {
-        HeadTraker = head;
+        HeadTraker = head->Start;
         row++;
         if (row == 1)
         {
@@ -200,6 +267,10 @@ void *getMenueItemFromFile(char file[], MenueHeader *head)
             if (column == 0)
             {
                 // printf("User Id :");
+                if (head->MaxId < atoi(value))
+                {
+                    head->MaxId = atoi(value);
+                }
                 HeadPointer->id = atoi(value);
             }
 
@@ -229,23 +300,24 @@ void *getMenueItemFromFile(char file[], MenueHeader *head)
             column++;
         }
 
-        printf("%d\t%d\t%s\t%d\n", HeadPointer->id, HeadPointer->category, HeadPointer->name, HeadPointer->price);
-        setItemNode(head, HeadPointer);
+        // printf("%d\t%d\t%s\t%d\n", HeadPointer->id, HeadPointer->category, HeadPointer->name, HeadPointer->price);
+        setItemNode(head->Start, HeadPointer);
         // printf("\n");
     }
     fclose(fp);
 };
 
-void DisplayMenue(MenueHeader *start)
+/*
+    Display Menue Item Containing In specific Cetogory
+    Dependancies :- None
+    DataStructure Used :- MenueItem
+*/
+void DisplayCetegoryItem(MenuItem *track)
 {
 
-    MenuItem *track = NULL;
-    while (start != NULL)
+    while (track != NULL)
     {
-        // LogMark();
-        // printf("\t\t%s", start->category);
-        PrintHeading(start->category);
-        track = start->items;
+
         LogMark();
         printf("| ItemId\t| ItemName\t\t\t\t\t| ItemPrice");
         LogMark();
@@ -254,17 +326,39 @@ void DisplayMenue(MenueHeader *start)
             printf("| %d\t\t| %s\t| %d Rs\n", track->id, track->name, track->price);
             track = track->next;
         }
-        start = start->next;
     }
-    printf("Exit");
 }
 
-void DisplayCetegory(MenueHeader *head)
+/*
+    Display Full Menue
+    Dependancies :- DisplayCetegoryItem Function
+    DataStructure Used :- MenueItem, MenueCategory
+*/
+void DisplayFullMenue(MenueCategory *start)
+{
+
+    MenuItem *track = NULL;
+    while (start != NULL)
+    {
+        // LogMark();
+        // printf("\t\t%s", start->category);
+        PrintHeading(start->category);
+        DisplayCetegoryItem(start->items);
+        start = start->next;
+    }
+}
+
+/*
+    Display Only Cetegory Of Menue
+    Dependancies :- None
+    DataStructure Used :- MenueCategory
+*/
+void DisplayCetegory(MenueCategory *head)
 {
 
     PrintHeading("Menue Cetegory");
     LogMark();
-    printf("| CategoryID\t\t| CetorogyName");
+    printf("| CategoryID\t| CetorogyName");
     LogMark();
     while (head != NULL)
     {
@@ -273,7 +367,10 @@ void DisplayCetegory(MenueHeader *head)
     }
 };
 
-void WriteDataToFile(MenueHeader *node, char *file1, char *file2)
+/*
+    This Function Write Whole Menue into Two diffrent File. We don't Need to Call two diffrent Function
+*/
+void WriteDataToFile(MenueCategory *node, char *file1, char *file2)
 {
 
     int column = 0, row = 0;
@@ -300,16 +397,22 @@ void WriteDataToFile(MenueHeader *node, char *file1, char *file2)
     fclose(fp1);
     fclose(fp2);
 }
-/*
-New Added Item starts
- */
 
-MenuItem *createMenueItem(MenueHeader *head)
+/*
+    New Added Item Items to the Menue  in diffrent Cetegory
+    Dependancies :- DisplayCetegory Function
+    DataStructure Used :- MenueItem, Storage
+*/
+MenuItem *createMenueItem(Storage *head)
 {
     MenuItem *new = (MenuItem *)malloc(sizeof(MenuItem));
-    DisplayCetegory(head);
+    DisplayCetegory(head->Start);
+    new->category = -1;
     printf("select Cetogry :- ");
-    scanf("%d", &new->category);
+    do
+    {
+        scanf("%d", &new->category);
+    } while (new->category < 0 || new->category >= head->NumberofCetogory);
 
     printf("Enter Item Name :- ");
     gets(new->name);
@@ -318,20 +421,23 @@ MenuItem *createMenueItem(MenueHeader *head)
     printf("Enter Item Price :- ");
     scanf("%d", &new->price);
     new->next = NULL;
-    new->id = -1;
+    new->id = ++head->MaxId;
 
     return new;
 };
 
 void main()
 {
-    MenueHeader *start = getMenueHeadersFromFile("CategoryType.csv");
-    MenueHeader *traker = NULL;
+
+    Storage *start = getMenueCategorysFromFile("CategoryType.csv");
+    // LogMark();
+    // printf("%d\t%d\t %p\n", start->MaxId, start->NumberofCetogory, start->Start);
+    // MenueCategory *start = getMenueHeadersFromFile("CategoryType.csv");
+    MenueCategory *traker = NULL;
     getMenueItemFromFile("MenueItem.csv", start);
-    DisplayMenue(start);
-    printf("Pregram Runs");
+    DisplayFullMenue(start->Start);
     MenuItem *new = createMenueItem(start);
-    setItemNode(start, new);
-    DisplayMenue(start);
-    WriteDataToFile(start, "CategoryType.csv", "MenueItem.csv");
+    setItemNode(start->Start, new);
+    DisplayFullMenue(start->Start);
+    WriteDataToFile(start->Start, "CategoryType.csv", "MenueItem.csv");
 }
