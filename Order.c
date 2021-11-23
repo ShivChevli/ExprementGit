@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <conio.h>
 #include <string.h>
 /*
     Custom Data Structure
@@ -427,18 +428,20 @@ MenuItem *SelectItemById(MenueCategory *start, int id)
 */
 void DisplayOrder(Order *order)
 {
-    OrderItem *node = order->items;
-    PrintHeading("My Order");
-    printf("| ItemName\t\t\t\t\t| ItemPrice\t| Quantity\t| Total\n");
-    while (node != NULL)
+    if (order != NULL)
     {
-        printf("| %s\t| %d\t\t| %d\t\t| %d\n", node->item->name, node->item->price, node->quantity, node->itemTotal);
-        node = node->next;
+        OrderItem *node = order->items;
+        printf("| ItemName\t\t\t\t\t| ItemPrice\t| Quantity\t| Total\n");
+        while (node != NULL)
+        {
+            printf("| %s\t| %d\t\t| %d\t\t| %d\n", node->item->name, node->item->price, node->quantity, node->itemTotal);
+            node = node->next;
+        }
+        LogMark();
+        printf("Total Item :- %d\n", order->totalItem);
+        printf("Fianl Total :- %d", order->total);
+        LogMark();
     }
-    LogMark();
-    printf("Total Item :- %d\n", order->totalItem);
-    printf("Fianl Total :- %d", order->total);
-    LogMark();
 }
 
 /*
@@ -457,6 +460,12 @@ Order *CreateOrder(MenueCategory *start)
 
     do
     {
+        system("cls");
+        if (track != NULL)
+        {
+            PrintHeading("Your Order");
+        }
+        DisplayOrder(track);
         selectCetegory = NULL;
         orderItem = NULL;
 
@@ -478,7 +487,6 @@ Order *CreateOrder(MenueCategory *start)
 
         while (selectCetegory == NULL)
         {
-
             DisplayCetegory(start);
             LogMark();
             printf("What Would you like to Order?\nSelect Cetegory : ");
@@ -507,6 +515,7 @@ Order *CreateOrder(MenueCategory *start)
         myOrder->item = orderItem;
 
         removeLength(orderItem->name);
+        LogMark();
         printf("How many %s do you want to Order ?\nEnter Quentity : ", orderItem->name);
         setLength(orderItem->name, 40);
         scanf("%d", &myOrder->quantity);
@@ -516,7 +525,11 @@ Order *CreateOrder(MenueCategory *start)
         track->totalItem = track->totalItem + myOrder->quantity;
 
         LogMark();
-        printf("Do you want any thing Else ?");
+
+        system("cls");
+        PrintHeading("Your Current Order");
+        DisplayOrder(track);
+        printf("\nDo you want any thing Else ?");
         printf("\n0. No");
         printf("\n1. Yes");
         LogMark();
@@ -535,5 +548,8 @@ void main()
     Order *order = CreateOrder(start->Start);
     LogMark();
     printf("Total Items :- %d\nTotal Amount :- %d\n", order->totalItem, order->total);
+    system("cls");
+    PrintHeading("Your Final Order");
     DisplayOrder(order);
+    getch();
 }
