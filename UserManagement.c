@@ -10,6 +10,8 @@ typedef struct USER
     int status;
     char userName[20];
     char password[20];
+    char email[40];
+    char moNumber[10];
     struct USER *next;
 } User;
 typedef struct USERHEAD
@@ -43,12 +45,12 @@ void LogMark()
 void DiaplayUser(UserHeadNode *head)
 {
     User *pt = head->next;
-    printf("\n------------------------------------------------------------------------------\n");
-    printf("| UserId\t| UserType\t| UserStatus\t| UserName\t| UserPassword\n");
-    printf("------------------------------------------------------------------------------\n");
+    printf("\n------------------------------------------------------------------------------------------------------------------------------------\n");
+    printf("| UserId\t| UserType\t| UserStatus\t| UserName\t| Email\t\t\t\t| MobileNumber\t| UserPassword\t\n");
+    printf("---------------------------------------------------------------------------------------------------------------------------------------\n");
     while (pt != NULL)
     {
-        printf("| %d\t\t| %d\t\t| %d\t\t| %s\t\t| %s\n", pt->id, pt->type, pt->status, pt->userName, pt->password);
+        printf("| %d\t\t| %d\t\t| %d\t\t| %s\t\t| %s\t\t| %s\t| %s\n", pt->id, pt->type, pt->status, pt->userName, pt->email, pt->moNumber, pt->password);
         pt = pt->next;
     }
     printf("\nTotal User :- %d", head->NumberOfUser);
@@ -113,10 +115,14 @@ User *UserValidation(User *u1)
 
 User *createUser(User *pt)
 {
-    char p1[20], p2[20], tempUser[20];
+    char p1[20], p2[20], tempUser[20], tempEmail[40], tempNumber[15];
     User *temp = NULL;
     printf("Enter User Name :- ");
     scanf("%s", tempUser);
+    printf("Enter Email Address :- ");
+    scanf("%s", tempEmail);
+    printf("Enter Mobile Number :- ");
+    scanf("%s", tempNumber);
 
     printf("Enter Password :- ");
     scanf("%s", p1);
@@ -127,6 +133,8 @@ User *createUser(User *pt)
         temp = (User *)malloc(sizeof(User));
         strcpy(temp->userName, tempUser);
         strcpy(temp->password, p1);
+        strcpy(temp->email, tempEmail);
+        strcpy(temp->moNumber, tempNumber);
         temp->type = 0;
         temp->status = 1;
         temp->next = NULL;
@@ -223,6 +231,16 @@ UserHeadNode *getUserFromFile(char file[])
                 // printf("\t\tUser Password :");
             }
 
+            if (column == 5)
+            {
+                strcpy(HeadPointer->email, value);
+            }
+
+            if (column == 6)
+            {
+                strcpy(HeadPointer->moNumber, value);
+            }
+
             // printf("%s", value);
             value = strtok(NULL, ", ");
             column++;
@@ -243,12 +261,12 @@ void writeUserTofile(char *file, UserHeadNode *node)
     char pre[] = "./Database/";
     FILE *fp = fopen(strcat(pre, file), "w");
 
-    fprintf(fp, "UserId,UserType,UserStatus,UserName,UserPassword\n");
+    fprintf(fp, "UserId,UserType,UserStatus,UserName,UserPassword,EmailAddress,MobileNumber\n");
 
     User *pt = node->next;
     while (pt != NULL)
     {
-        fprintf(fp, "%d,%d,%d,%s,%s", pt->id, pt->type, pt->status, pt->userName, pt->password);
+        fprintf(fp, "%d,%d,%d,%s,%s,%s,%s\n", pt->id, pt->type, pt->status, pt->userName, pt->password, pt->email, pt->moNumber);
         pt = pt->next;
     }
     fclose(fp);
